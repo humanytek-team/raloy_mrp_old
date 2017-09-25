@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="mrp_production_form_view_mo_bom" model="ir.ui.view">
+            <field name="name">mrp_production_form_view_mo_bom</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='product_uom_qty']" position="replace">
+                    <field name="product_uom_qty" attrs="{'readonly': [('state', 'in', ('planned','progress', 'cancel','done'))],'required': [('product_id', '!=', False)]}" string="A Consumir" sum='Cantidad total'/>
+                </xpath>
+
+                <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='quantity_done']" position="after">
+                    <field name="obligatorio" attrs="{'readonly': [('state','in',('planned','progress','cancel','done'))]}" />
+                    <field name="formula_p" attrs="{'readonly': [('state','in',('planned','progress','cancel','done'))]}" />
+                    <field name="densidad" attrs="{'readonly': [('state', 'in', ('planned','progress','done','cancel'))]}" />
+                    <field name="kilos"/>
+                    <field name="unit_factor"/>
+                    <field name="porcentaje" sum='Porcentaje total'/>
+                </xpath>
+
+                <!-- ELEMENTO DE MODULO STOCK MOVE ADD, SE ELIMINA BOTON CANCELAR -->
+                <button name="action_consume_cancel" position="replace">
+                </button>
+
+
+            </field>
+        </record>
+
+    </data>
+</openerp>
+
