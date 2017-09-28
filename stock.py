@@ -20,14 +20,14 @@ class StockMove(models.Model):
     @api.multi
     @api.depends('product_uom_qty')
     def _compute_unit_factor(self):
-        print '_compute_unit_factor'
+        #print '_compute_unit_factor'
         for rec in self:
             original_quantity = rec.raw_material_production_id.product_qty - rec.raw_material_production_id.qty_produced
             if original_quantity > 0:
-                print 'original_quantity: ',original_quantity
-                print 'rec.product_uom_qty: ',rec.product_uom_qty
+                #print 'original_quantity: ',original_quantity
+                #print 'rec.product_uom_qty: ',rec.product_uom_qty
                 rec.unit_factor = (rec.product_uom_qty / original_quantity)
-                print 'rec.unit_factor: ',rec.unit_factor
+                #print 'rec.unit_factor: ',rec.unit_factor
 
     @api.multi
     @api.depends('densidad','product_uom_qty')
@@ -51,11 +51,11 @@ class StockMove(models.Model):
 
     @api.multi
     def compute_bom_data(self):
-        print 'compute_bom_data'
+        #print 'compute_bom_data'
         for rec in self:
             if rec.bom_line_id and not rec.new_bom_line:
-                print 'rec.bom_line_id.obligatorio: ',rec.bom_line_id.obligatorio
-                print 'rec.bom_line_id.formula_p: ',rec.bom_line_id.formula_p
+                #print 'rec.bom_line_id.obligatorio: ',rec.bom_line_id.obligatorio
+                #print 'rec.bom_line_id.formula_p: ',rec.bom_line_id.formula_p
                 rec.obligatorio = rec.bom_line_id.obligatorio
                 rec.formula_p = rec.bom_line_id.formula_p
         return

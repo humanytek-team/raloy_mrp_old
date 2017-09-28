@@ -39,8 +39,13 @@ class MrpProduction(models.Model):
                 if abs(differencia) > _ALLOWED_DIFFERENCE:
                     #if move_qty_percentage < move.formula_p:
                     if differencia < 0:
-                        min_qty = (move.formula_p * bom_qty) / 100
+                        min_qty = ((move.formula_p * bom_qty) / 100) or 0.0
                         move.product_uom_qty = min_qty
+
+
+                        min_qty = str('{0:f}'.format(min_qty))
+                        #print 'min_qty: ',min_qty
+                        
                         raise ValidationError(_('La cantidad minima permitida para '+move.product_id.name+\
                             ' es '+str(min_qty)))
                     #elif move_qty_percentage > 100:
@@ -80,17 +85,24 @@ class MrpProduction(models.Model):
                 differencia = production_total - bom_total
                 if abs(differencia) > _ALLOWED_DIFFERENCE:
                     #if production_total > bom_total:
-                    if differencia > 0:
-                        raise ValidationError(_('Esta sobrepasando el 100% de cantidad de material de produccion'\
-                            +'\nTotal Lista de materiales = '+str(bom_total)+\
-                            '\nTotal Materiales a consumir = '+str(production_total)\
-                            +'\nDiferencia: '+str(abs(differencia))))
-                    #elif production_total < bom_total:
-                    elif differencia < 0:
+                    if differencia < 0:
+                        str_differencia = str('{0:f}'.format(differencia))
+                        #print 'str_differencia: ',str_differencia
                         raise ValidationError(_('No alcanza el 100% de cantidad de produccion necesario'\
                             +'\nTotal Lista de materiales = '+str(bom_total)+\
                             '\nTotal Materiales a consumir = '+str(production_total)\
-                            +'\nDiferencia: '+str(abs(differencia))))
+                            +'\nDiferencia: '+str(str_differencia)))
+                    # if differencia > 0:
+                    #     raise ValidationError(_('Esta sobrepasando el 100% de cantidad de material de produccion'\
+                    #         +'\nTotal Lista de materiales = '+str(bom_total)+\
+                    #         '\nTotal Materiales a consumir = '+str(production_total)\
+                    #         +'\nDiferencia: '+str(abs(differencia))))
+                    # #elif production_total < bom_total:
+                    # elif differencia < 0:
+                    #     raise ValidationError(_('No alcanza el 100% de cantidad de produccion necesario'\
+                    #         +'\nTotal Lista de materiales = '+str(bom_total)+\
+                    #         '\nTotal Materiales a consumir = '+str(production_total)\
+                    #         +'\nDiferencia: '+str(abs(differencia))))
 
 
     #HEREDA METODOS EXISTENTES Y AGREGA CHECKEO DE PORCENTAGES
