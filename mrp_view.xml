@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+        <record id="mrp_bom_form_view_mo_bom" model="ir.ui.view">
+            <field name="name">mrp_bom_form_view_mo_bom</field>
+            <field name="model">mrp.bom</field>
+            <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//notebook/page/field[@name='bom_line_ids']/tree/field[@name='product_uom_id']" position="after">
+                    <field name="obligatorio" />
+                </xpath>
+
+                <xpath expr="//notebook/page/field[@name='bom_line_ids']/tree/field[@name='attribute_value_ids']" position="after">
+                    <field name="formula_p" />
+                </xpath>
+
+            </field>
+        </record>
+
+
 
         <record id="mrp_production_form_view_mo_bom" model="ir.ui.view">
             <field name="name">mrp_production_form_view_mo_bom</field>
@@ -9,15 +27,15 @@
             <field name="arch" type="xml">
 
                 <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='product_uom_qty']" position="replace">
-                    <field name="product_uom_qty" attrs="{'readonly': [('state', 'in', ('planned','progress', 'cancel','done'))],'required': [('product_id', '!=', False)]}" string="A Consumir" sum='Cantidad total'/>
+                    <field name="product_uom_qty" attrs="{'readonly': [('state', 'in', ('planned','progress', 'cancel','done'))],'required': [('product_id', '!=', False)]}" string="A Consumir"/>
                 </xpath>
 
                 <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='quantity_done']" position="after">
-                    <field name="obligatorio" attrs="{'readonly': [('state','in',('planned','progress','cancel','done'))]}" />
-                    <field name="formula_p" attrs="{'readonly': [('state','in',('planned','progress','cancel','done'))]}" />
-                    <field name="densidad" attrs="{'readonly': [('state', 'in', ('planned','progress','done','cancel'))]}" />
+                    <field name="obligatorio" readonly="1" />
+                    <field name="formula_p" readonly="1" />
+                    <field name="densidad" />
                     <field name="kilos"/>
-                    <field name="unit_factor"/>
+                    <field name="unit_factor" invisible="1"/>
                     <field name="porcentaje" sum='Porcentaje total'/>
                 </xpath>
 

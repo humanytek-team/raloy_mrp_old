@@ -8,93 +8,11 @@ from odoo.addons import decimal_precision as dp
 
 _ALLOWED_DIFFERENCE = .0000001 #MARGEN PERMITIDO DE DIFERENCIA ENTRE 2 NUMEROS
 
-# class MrpWorkorder(models.Model):
-#     _inherit = 'mrp.workorder'
+class MrpBomLine(models.Model):
+    _inherit = 'mrp.bom.line'
 
-#     @api.multi
-#     def record_production(self):
-#         self.ensure_one()
-#         if self.qty_producing <= 0:
-#             raise UserError(_('Please set the quantity you produced in the Current Qty field. It can not be 0!'))
-
-#         if (self.production_id.product_id.tracking != 'none') and not self.final_lot_id:
-#             raise UserError(_('You should provide a lot for the final product'))
-
-#         # Update quantities done on each raw material line
-#         raw_moves = self.move_raw_ids.filtered(lambda x: (x.has_tracking == 'none') and (x.state not in ('done', 'cancel')) and x.bom_line_id)
-#         for move in raw_moves:
-#             if move.unit_factor:
-#                 #rounding = move.product_uom.rounding
-#                 #move.quantity_done += float_round(self.qty_producing * move.unit_factor, precision_rounding=rounding)
-#                 move.quantity_done += (self.qty_producing * move.unit_factor)
-#                 print 'move.product_id.name: ',move.product_id.name
-#                 print 'move.quantity_done: ',move.quantity_done
-
-#         # Transfer quantities from temporary to final move lots or make them final
-#         for move_lot in self.active_move_lot_ids:
-#             # Check if move_lot already exists
-#             if move_lot.quantity_done <= 0:  # rounding...
-#                 move_lot.sudo().unlink()
-#                 continue
-#             if not move_lot.lot_id:
-#                 raise UserError(_('You should provide a lot for a component'))
-#             # Search other move_lot where it could be added:
-#             lots = self.move_lot_ids.filtered(lambda x: (x.lot_id.id == move_lot.lot_id.id) and (not x.lot_produced_id) and (not x.done_move))
-#             if lots:
-#                 lots[0].quantity_done += move_lot.quantity_done
-#                 lots[0].lot_produced_id = self.final_lot_id.id
-#                 move_lot.sudo().unlink()
-#             else:
-#                 move_lot.lot_produced_id = self.final_lot_id.id
-#                 move_lot.done_wo = True
-
-#         # One a piece is produced, you can launch the next work order
-#         if self.next_work_order_id.state == 'pending':
-#             self.next_work_order_id.state = 'ready'
-#         if self.next_work_order_id and self.final_lot_id and not self.next_work_order_id.final_lot_id:
-#             self.next_work_order_id.final_lot_id = self.final_lot_id.id
-
-#         self.move_lot_ids.filtered(
-#             lambda move_lot: not move_lot.done_move and not move_lot.lot_produced_id and move_lot.quantity_done > 0
-#         ).write({
-#             'lot_produced_id': self.final_lot_id.id,
-#             'lot_produced_qty': self.qty_producing
-#         })
-
-#         # If last work order, then post lots used
-#         # TODO: should be same as checking if for every workorder something has been done?
-#         if not self.next_work_order_id:
-#             production_move = self.production_id.move_finished_ids.filtered(lambda x: (x.product_id.id == self.production_id.product_id.id) and (x.state not in ('done', 'cancel')))
-#             if production_move.product_id.tracking != 'none':
-#                 move_lot = production_move.move_lot_ids.filtered(lambda x: x.lot_id.id == self.final_lot_id.id)
-#                 if move_lot:
-#                     move_lot.quantity += self.qty_producing
-#                 else:
-#                     move_lot.create({'move_id': production_move.id,
-#                                      'lot_id': self.final_lot_id.id,
-#                                      'quantity': self.qty_producing,
-#                                      'quantity_done': self.qty_producing,
-#                                      'workorder_id': self.id,
-#                                      })
-#             else:
-#                 production_move.quantity_done += self.qty_producing  # TODO: UoM conversion?
-#         # Update workorder quantity produced
-#         self.qty_produced += self.qty_producing
-
-#         # Set a qty producing
-#         if self.qty_produced >= self.production_id.product_qty:
-#             self.qty_producing = 0
-#         elif self.production_id.product_id.tracking == 'serial':
-#             self.qty_producing = 1.0
-#             self._generate_lot_ids()
-#         else:
-#             self.qty_producing = self.production_id.product_qty - self.qty_produced
-#             self._generate_lot_ids()
-
-#         self.final_lot_id = False
-#         if self.qty_produced >= self.production_id.product_qty:
-#             self.button_finish()
-#         return True
+    obligatorio = fields.Boolean('Obligatorio')
+    formula_p = fields.Float('% de Formula',digits=dp.get_precision('Product Unit of Measure'))
 
 
 class MrpProduction(models.Model):
@@ -126,11 +44,11 @@ class MrpProduction(models.Model):
                         raise ValidationError(_('La cantidad minima permitida para '+move.product_id.name+\
                             ' es '+str(min_qty)))
                     #elif move_qty_percentage > 100:
-                    elif differencia > 0:
-                        max_qty = bom_qty
-                        move.product_uom_qty = max_qty
-                        raise ValidationError(_('La cantidad maxima permitida para '+move.product_id.name+\
-                            ' es '+str(max_qty)))
+                    # elif differencia > 0:
+                    #     max_qty = bom_qty
+                    #     move.product_uom_qty = max_qty
+                    #     raise ValidationError(_('La cantidad maxima permitida para '+move.product_id.name+\
+                    #         ' es '+str(max_qty)))
         return
 
 

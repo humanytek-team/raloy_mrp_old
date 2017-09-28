@@ -13,9 +13,9 @@ from odoo.tools.float_utils import float_compare, float_round, float_is_zero
 class StockMove(models.Model):
     _inherit = 'stock.move'
 
-    def write(self,vals):
-        print 'stock move vals: ',vals
-        return super(StockMove,self).write(vals)
+    # def write(self,vals):
+    #     print 'stock move vals: ',vals
+    #     return super(StockMove,self).write(vals)
 
     @api.multi
     @api.depends('product_uom_qty')
@@ -49,6 +49,17 @@ class StockMove(models.Model):
                 if bom_total > 0 and rec.state not in ('cancel'):
                    rec.porcentaje = (rec.product_uom_qty * 100) / bom_total
 
+    @api.multi
+    def compute_bom_data(self):
+        print 'compute_bom_data'
+        for rec in self:
+            if rec.bom_line_id and not rec.new_bom_line:
+                print 'rec.bom_line_id.obligatorio: ',rec.bom_line_id.obligatorio
+                print 'rec.bom_line_id.formula_p: ',rec.bom_line_id.formula_p
+                rec.obligatorio = rec.bom_line_id.obligatorio
+                rec.formula_p = rec.bom_line_id.formula_p
+        return
+
     #@api.one
     def get_bom_total(self):
         """
@@ -64,10 +75,13 @@ class StockMove(models.Model):
 
 
     quantity_done_store = fields.Float('Quantity', digits=dp.get_precision('Product Unit of Measure'))
-    unit_factor = fields.Float('Unit Factor',compute='_compute_unit_factor',store=True,digits=dp.get_precision('Product Unit of Measure'))
+    unit_factor = fields.Float('Unit Factor',compute='_compute_unit_factor',digits=dp.get_precision('Product Unit of Measure'))
 
-    obligatorio = fields.Boolean('Obligatorio')
-    formula_p = fields.Float('% de Formula',digits=dp.get_precision('Product Unit of Measure'))
+    #obligatorio = fields.Boolean('Obligatorio', compute='compute_bom_data', store=True)
+    #formula_p = fields.Float('% de Formula',digits=dp.get_precision('Product Unit of Measure'), compute='compute_bom_data', store=True)
+    obligatorio = fields.Boolean('Obligatorio', compute='compute_bom_data')
+    formula_p = fields.Float('% de Formula',digits=dp.get_precision('Product Unit of Measure'), compute='compute_bom_data')
+
     densidad = fields.Float('Densidad',digits=dp.get_precision('Product Unit of Measure'))
     kilos = fields.Float('Kilos', compute='_compute_kg', store=True, digits=dp.get_precision('Product Unit of Measure'))
     #produccion_p = fields.Boolean('%% de Produccion')
