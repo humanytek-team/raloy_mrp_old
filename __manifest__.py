@@ -31,6 +31,7 @@
     'data': [
         'product_view.xml',
         'mrp_view.xml',
+        'stock_move_add_view.xml',
     ],
 
 

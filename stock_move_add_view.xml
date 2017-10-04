@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <!-- Production Order -->  
+        <record id="view_mo_add_product_form_mo_bom" model="ir.ui.view">
+            <field name="name">view_mo_add_product_form_mo_bom</field>
+            <field name="model">stock.move.add</field>
+            <field name="inherit_id" ref="mrp_add_remove_products.view_mo_add_product_form"/>
+            <field name="arch" type="xml">
+                <!-- PERMITE SELECCIONAR CUALQUIER UBICACION -->
+                <field name="location_id" position="attributes">
+                    <attribute name='domain'></attribute>
+                </field>
+                <field name="location_dest_id" position="attributes">
+                    <attribute name='domain'></attribute>
+                </field>
+            </field>
+        </record>
+
+
+    </data>
+</openerp>
