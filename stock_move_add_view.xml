@@ -8,6 +8,11 @@
             <field name="model">stock.move.add</field>
             <field name="inherit_id" ref="mrp_add_remove_products.view_mo_add_product_form"/>
             <field name="arch" type="xml">
+                <field name="product_id" position='after'>
+                    <field name="mo_id" invisible='1'/>
+                    <field name="routing_id" invisible='1'/>
+                    <field name="operation_id"  domain="[('routing_id', '=', routing_id)]" options="{'no_quick_create':True,'no_create_edit':True}"/>
+                </field>
                 <!-- PERMITE SELECCIONAR CUALQUIER UBICACION -->
                 <field name="location_id" position="attributes">
                     <attribute name='domain'></attribute>

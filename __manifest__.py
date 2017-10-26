@@ -27,8 +27,9 @@
     Agrega campos de porcentaje en listas de materiales
     de ordenes de produccion
     """,
-    'depends' : ['mrp_add_remove_products'],
+    'depends' : ['mrp_add_remove_products','mrp_default_locations'],
     'data': [
+        'wizard/change_route_view.xml',
         'product_view.xml',
         'mrp_view.xml',
         'stock_move_add_view.xml',

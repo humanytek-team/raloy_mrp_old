@@ -8,11 +8,51 @@ from odoo.addons import decimal_precision as dp
 
 _ALLOWED_DIFFERENCE = .0000001 #MARGEN PERMITIDO DE DIFERENCIA ENTRE 2 NUMEROS
 
-class MrpBomLine(models.Model):
-    _inherit = 'mrp.bom.line'
+# class MrpWorkorder(models.Model):
+#     _inherit = 'mrp.workorder'
 
-    obligatorio = fields.Boolean('Obligatorio')
-    formula_p = fields.Float('% de Formula',digits=dp.get_precision('Product Unit of Measure'))
+#     def _generate_lot_ids(self):
+#         """ Generate stock move lots """
+#         self.ensure_one()
+#         MoveLot = self.env['stock.move.lots']
+#         tracked_moves = self.move_raw_ids.filtered(
+#             lambda move: move.state not in ('done', 'cancel') and move.product_id.tracking != 'none' and move.product_id != self.production_id.product_id)
+#         for move in tracked_moves:
+#             print '--------------------'
+#             print 'move-product_id.name: ',move.product_id.name
+#             print 'move.unit_factor: ',move.unit_factor
+#             print 'self.qty_producing: ',self.qty_producing
+#             qty = move.unit_factor * self.qty_producing
+#             print 'qty: ',qty
+#             if move.product_id.tracking == 'serial':
+#                 while float_compare(qty, 0.0, precision_rounding=move.product_uom.rounding) > 0:
+#                     MoveLot.create({
+#                         'move_id': move.id,
+#                         'quantity': min(1, qty),
+#                         'quantity_done': min(1, qty),
+#                         'production_id': self.production_id.id,
+#                         'workorder_id': self.id,
+#                         'product_id': move.product_id.id,
+#                         'done_wo': False,
+#                     })
+#                     qty -= 1
+#             else:
+#                 MoveLot.create({
+#                     'move_id': move.id,
+#                     'quantity': qty,
+#                     'quantity_done': qty,
+#                     'product_id': move.product_id.id,
+#                     'production_id': self.production_id.id,
+#                     'workorder_id': self.id,
+#                     'done_wo': False,
+#                     })
+
+
+# class MrpBomLine(models.Model):
+#     _inherit = 'mrp.bom.line'
+
+#     obligatorio = fields.Boolean('Obligatorio')
+#     formula_p = fields.Float('% de Formula',digits=dp.get_precision('Product Unit of Measure'))
 
 
 class MrpProduction(models.Model):

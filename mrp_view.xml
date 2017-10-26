@@ -6,6 +6,9 @@
             <field name="model">mrp.bom</field>
             <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
             <field name="arch" type="xml">
+                <xpath expr="//notebook/page/field[@name='bom_line_ids']/tree/field[@name='product_qty']" position="after">
+                    <field name="bom_p" sum='Porcentaje'/>
+                </xpath>
 
                 <xpath expr="//notebook/page/field[@name='bom_line_ids']/tree/field[@name='product_uom_id']" position="after">
                     <field name="obligatorio" />
@@ -25,14 +28,25 @@
             <field name="model">mrp.production</field>
             <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
             <field name="arch" type="xml">
+                <field name="routing_id" position="replace">
+                    <field name="routing_id" groups="mrp.group_mrp_routings" invisible='1'/>
+                </field>
 
-                <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='product_uom_qty']" position="replace">
-                    <field name="product_uom_qty" attrs="{'readonly': [('state', 'in', ('planned','progress', 'cancel','done'))],'required': [('product_id', '!=', False)]}" string="A Consumir"/>
-                </xpath>
+                <field name="routing_id" position="after">
+                    <label for="routing_id"/>
+                    <div class="o_row">
+                        <field name="routing_id" groups="mrp.group_mrp_routings"/>
+                        <button type="action"
+                        name="%(raloy_mrp.action_change_route)d"
+                        string="Actualizar" states="confirmed,planned,progress" class="oe_link" attrs="{'invisible': [('state','=','done')]}"/>
+                    </div> 
+                </field>
 
                 <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='quantity_done']" position="after">
+                    <!-- <field name="bom_p" readonly="1" sum='% Total LDM'/> -->
                     <field name="obligatorio" readonly="1" />
                     <field name="formula_p" readonly="1" />
+                    <field name="real_p" />
                     <field name="densidad" />
                     <field name="kilos"/>
                     <field name="unit_factor" invisible="1"/>
