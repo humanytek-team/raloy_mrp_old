@@ -6,11 +6,39 @@ from odoo.addons import decimal_precision as dp
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_round
 
+
+_ALLOWED_DIFFERENCE = .0000001 #MARGEN PERMITIDO DE DIFERENCIA ENTRE 2 NUMEROS
+
 class MrpBomLine(models.Model):
     _inherit = 'mrp.bom.line'
         
 
-    bom_p = fields.Float('% de Lista',digits=dp.get_precision('Product Unit of Measure'), readonly=True)
+    @api.multi
+    def compute_product_qty(self):
+        #print 'compute_product_qty'
+        #print 'self: ',self
+        #print 'self.bom_id: ',self.bom_id
+        #print 'self.bom_id.product_tmpl_id: ',self.bom_id.product_tmpl_id
+        #print 'self.bom_id.product_tmpl_id.categ_id.mrp_bom_modification: ',self.bom_id.product_tmpl_id.categ_id.mrp_bom_modification
+        if self.bom_id and self.bom_id.product_tmpl_id and self.bom_id.product_tmpl_id.categ_id \
+            and self.bom_id.product_tmpl_id.categ_id.mrp_bom_modification:
+            #print '0000'
+            for rec in self:
+                #print '1111'
+                if rec.bom_p:
+                    #print '2222'
+                    rec.product_qty = (rec.bom_p * self.bom_id.product_qty)/100
+        return
+
+
+    @api.multi
+    def compute_bom_p(self):
+        #print 'compute_bom_p'
+        pass
+
+
+    #bom_p = fields.Float('% de Lista',digits=dp.get_precision('Product Unit of Measure'))
+    bom_p = fields.Float('% de Lista',digits=dp.get_precision('Product Unit of Measure'),store=True,compute='compute_bom_p',inverse='compute_product_qty')
 
     obligatorio = fields.Boolean('Obligatorio',track_visibility='onchange')
     formula_p = fields.Float('% de Formula',digits=dp.get_precision('Product Unit of Measure'),track_visibility='onchange')
@@ -52,31 +80,66 @@ class MrpBom(models.Model):
                         #print 'field: ',field
                         #print 'value: ',line[2][field]
                         new_val = line[2][field]
+                        readable_field = field #USER READABLE NAME
+                        if field == 'product_qty':
+                            readable_field = 'Cantidad Producto'
+                        if field == 'bom_p':
+                            readable_field = '% de lista'
+                        if field == 'obligatorio':
+                            readable_field = 'Obligatorio'
+                        if field == 'formula_p':
+                            readable_field = '% de Formula'
+                        if field == 'attribute_value_ids':
+                            readable_field = 'Variantes'
+
                         if field == 'product_uom_id':
+                            readable_field = 'Unidad de medida'
                             uom = self.env['product.uom'].search([('id','=',line[2][field])])
                             new_val = uom.name
+
                         if field == 'operation_id':
+                            readable_field = 'Consumido en la operacion'
                             operation = self.env['mrp.routing.workcenter'].search([('id','=',line[2][field])])
                             new_val = operation.name
+
                         if field == 'product_id':
+                            readable_field = 'Producto'
                             product = self.env['product.product'].search([('id','=',line[2][field])])
                             new_val = product.name
-                        msg = msg + field +': '+ str(new_val) +'<br/>'
+                        msg = msg + readable_field +': '+ str(new_val) +'<br/>'
         #print msg
-        #post = self.env['mail.thread'].message_post(body=msg,type="comment")
+        #SE CALCULA EL PORCENTAJE DE CADA LINEA (SOLO PARA PRODUCTOS DE CATEGORIAS CON CHECKBOX MARCADO)
+        if self.product_tmpl_id and self.product_tmpl_id.categ_id and self.product_tmpl_id.categ_id.mrp_bom_modification:
+            deleted_ids = [line[1] for line in vals['bom_line_ids'] if line[0] == 2]
+            modified_ids = [line[1] for line in vals['bom_line_ids'] if line[2]]
+            #print 'modified_ids',modified_ids
+            old_values = [line.bom_p for line in self.bom_line_ids if line.id not in modified_ids and line.id not in deleted_ids]
+            #print 'old_values: ',old_values
+            #print 'sum(old_values): ',sum(old_values)
+            new_values = [line[2]['bom_p'] for line in vals['bom_line_ids'] if line[2] and 'bom_p' in line[2]]
+            #print 'new_values: ',new_values
+            #print 'sum(new_values): ',sum(new_values)
+            bom_p_total = sum(new_values) + sum(old_values)
+
+            differencia = bom_p_total - 100
+            if bom_p_total > 100:
+            #if abs(differencia) > _ALLOWED_DIFFERENCE:
+                raise ValidationError(_('El % de lista no puede ser mayor al 100%'))
+
+
         self.message_post(body=msg,type="comment")
         #print 'post: ',post
-        #SE CALCULA EL PROCENTAJE DE CADA LINEA
 
+        #revisa que se junte el 100% en la lista de materiales
         res = super(MrpBom,self).write(vals)
         #print 'res: ',self
-        if self.bom_line_ids:
-            total = sum([line.product_qty for line in self.bom_line_ids])
-            for line in self.bom_line_ids:
-                if total > 0:
-                    line.bom_p = (line.product_qty * 100) / total
-                else:
-                    line.bom_p = 0
+        # if self.bom_line_ids:
+        #     total = sum([line.product_qty for line in self.bom_line_ids])
+        #     for line in self.bom_line_ids:
+        #         if total > 0:
+        #             line.bom_p = (line.product_qty * 100) / total
+        #         else:
+        #             line.bom_p = 0
         return res
 
 
