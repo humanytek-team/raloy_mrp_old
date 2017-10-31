@@ -97,24 +97,41 @@ class StockMove(models.Model):
         return bom_total
 
 
+    #CALCULA EN BASE AL 100$ DE LINEA CORRESPONDIENTE EN LISTA DE MATERIALES
+    # @api.multi
+    # #@api.depends('real_p')
+    # def compute_uom_qty(self):
+    #     #print 'self: ',self
+    #     #print 'compute_uom_qty'
+    #     for rec in self:
+    #         #print 'rec.id: ',rec.id
+    #         #print 'rec.bom_line_id: ',rec.bom_line_id
+    #         #print 'rec.new_bom_line: ',rec.new_bom_line
+    #         if rec.bom_line_id and not rec.new_bom_line and rec.raw_material_production_id:
+    #             new_product_uom_qty = 0
+    #             #print 'rec.real_p: ',rec.real_p
+    #             if rec.real_p >= 0:
+    #                 product_qty = rec.raw_material_production_id.product_qty
+    #                 bom_product_qty = rec.bom_line_id.product_qty 
+    #                 #print 'bom_product_qty: ',bom_product_qty
+    #                 new_product_uom_qty = ((rec.real_p * bom_product_qty) / 100) * product_qty
+    #                 #print 'new_product_uom_qty: ',new_product_uom_qty
+
+    #             rec.product_uom_qty = new_product_uom_qty
+    #     return
+
+    #CALCULA EN BASE AL 100% DE LA CANTIDAD A PRODUCIR
     @api.multi
     #@api.depends('real_p')
     def compute_uom_qty(self):
         #print 'self: ',self
         #print 'compute_uom_qty'
         for rec in self:
-            #print 'rec.id: ',rec.id
-            #print 'rec.bom_line_id: ',rec.bom_line_id
-            #print 'rec.new_bom_line: ',rec.new_bom_line
-            if rec.bom_line_id and not rec.new_bom_line and rec.raw_material_production_id:
-                new_product_uom_qty = 0
-                #print 'rec.real_p: ',rec.real_p
+            new_product_uom_qty = 0
+            if rec.raw_material_production_id:
                 if rec.real_p >= 0:
                     product_qty = rec.raw_material_production_id.product_qty
-                    bom_product_qty = rec.bom_line_id.product_qty 
-                    #print 'bom_product_qty: ',bom_product_qty
-                    new_product_uom_qty = ((rec.real_p * bom_product_qty) / 100) * product_qty
-                    #print 'new_product_uom_qty: ',new_product_uom_qty
+                    new_product_uom_qty = ((rec.real_p * product_qty) / 100)
 
                 rec.product_uom_qty = new_product_uom_qty
         return
@@ -133,7 +150,7 @@ class StockMove(models.Model):
     obligatorio = fields.Boolean('Obligatorio', compute='compute_bom_data')
     formula_p = fields.Float('% de Formula',digits=dp.get_precision('Product Unit of Measure'), compute='compute_bom_data')
 
-    real_p = fields.Float('% Real',digits=dp.get_precision('Product Unit of Measure'),store=True,default=100,compute='compute_real_p',inverse='compute_uom_qty')
+    real_p = fields.Float('% Real',digits=dp.get_precision('Product Unit of Measure'),store=True,compute='compute_real_p',inverse='compute_uom_qty')
 
     densidad = fields.Float('Densidad',digits=dp.get_precision('Product Unit of Measure'))
     kilos = fields.Float('Kilos', compute='_compute_kg', store=True, digits=dp.get_precision('Product Unit of Measure'))
