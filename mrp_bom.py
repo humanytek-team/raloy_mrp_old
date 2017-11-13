@@ -15,7 +15,7 @@ class MrpBomLine(models.Model):
 
     @api.multi
     def compute_product_qty(self):
-        #print 'compute_product_qty'
+        print 'compute_product_qty'
         #print 'self: ',self
         #print 'self.bom_id: ',self.bom_id
         #print 'self.bom_id.product_tmpl_id: ',self.bom_id.product_tmpl_id

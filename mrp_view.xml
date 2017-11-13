@@ -49,7 +49,7 @@
                     <field name="real_p" />
                     <field name="densidad" />
                     <field name="kilos"/>
-                    <field name="unit_factor" invisible="1"/>
+                    <field name="unit_factor" invisible="0"/>
                     <field name="porcentaje" sum='Porcentaje total'/>
                 </xpath>
 
