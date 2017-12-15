@@ -11,7 +11,22 @@ _ALLOWED_DIFFERENCE = .0000001 #MARGEN PERMITIDO DE DIFERENCIA ENTRE 2 NUMEROS
 
 class MrpBomLine(models.Model):
     _inherit = 'mrp.bom.line'
-        
+
+   
+    # @api.onchange('bom_p')
+    # def onchange_bom_p(self):
+    #     #print 'onchange_bom_p'
+    #     #self._origin
+    #     if self._origin.bom_id and self._origin.bom_id.product_tmpl_id and self._origin.bom_id.product_tmpl_id.categ_id \
+    #         and self._origin.bom_id.product_tmpl_id.categ_id.mrp_bom_modification:
+    #         #print '0000'
+    #         if self._origin.bom_p:
+    #             # print '2222'
+    #             # print self._origin.product_id.name
+    #             # print '',self.bom_p,'*',self._origin.bom_id.product_qty
+    #             self.product_qty = (self.bom_p * self._origin.bom_id.product_qty)/100
+    #     return
+
 
     @api.multi
     def compute_product_qty(self):
@@ -48,11 +63,28 @@ class MrpBomLine(models.Model):
 class MrpBom(models.Model):
     _inherit = 'mrp.bom'
 
+    # @api.onchange('product_qty')
+    # def onchange_product_qty(self):
+    #     print 'onchange_product_qty'
+    #     print self._origin
+    #     if self._origin.product_tmpl_id and self._origin.product_tmpl_id.categ_id \
+    #         and self._origin.product_tmpl_id.categ_id.mrp_bom_modification:
+    #         print '0000'
+    #         for line in self._origin.bom_line_ids:
+    #             print line.product_id.name
+    #             print line.bom_p
+    #             if line.bom_p:
+    #                 print '2222'
+    #                 line.product_qty = (line.bom_p * self._origin.product_qty)/100
+    #                 print 'line.product_qty: ',line.product_qty
+    #     return   
+
     @api.multi
     def write(self,vals):
         #print 'write'
         #print 'vals: ',vals
         msg = ''
+
         if 'bom_line_ids' in vals:
             for line in vals['bom_line_ids']:
                 new_line = False
@@ -144,6 +176,12 @@ class MrpBom(models.Model):
         #             line.bom_p = (line.product_qty * 100) / total
         #         else:
         #             line.bom_p = 0
+
+        if 'product_qty' in vals:
+            for line in self.bom_line_ids:
+                #print line.product_id.name
+                line.compute_product_qty()
+
         return res
 
 
