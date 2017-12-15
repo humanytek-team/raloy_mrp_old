@@ -237,7 +237,9 @@ class MrpProduction(models.Model):
         for production in self:
             if production.move_raw_ids:
                 for move in production.move_raw_ids:
+                    print 'move.product_id.name: ',move.product_id.name
                     if move.bom_line_id:
+                        print 'move.bom_line_id.bom_p: ',move.bom_line_id.bom_p
                         move.real_p = move.bom_line_id.bom_p
 
         return res

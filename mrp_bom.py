@@ -110,13 +110,17 @@ class MrpBom(models.Model):
         #print msg
         #SE CALCULA EL PORCENTAJE DE CADA LINEA (SOLO PARA PRODUCTOS DE CATEGORIAS CON CHECKBOX MARCADO)
         if self.product_tmpl_id and self.product_tmpl_id.categ_id and self.product_tmpl_id.categ_id.mrp_bom_modification:
-            deleted_ids = [line[1] for line in vals['bom_line_ids'] if line[0] == 2]
-            modified_ids = [line[1] for line in vals['bom_line_ids'] if line[2]]
+            #deleted_ids = [line[1] for line in vals['bom_line_ids'] if line[0] == 2]
+            deleted_ids = [line[1] for line in vals.get('bom_line_ids',[]) if line[0] == 2]
+            #modified_ids = [line[1] for line in vals['bom_line_ids'] if line[2]]
+            modified_ids = [line[1] for line in vals.get('bom_line_ids',[]) if line[2]]
+
             #print 'modified_ids',modified_ids
             old_values = [line.bom_p for line in self.bom_line_ids if line.id not in modified_ids and line.id not in deleted_ids]
             #print 'old_values: ',old_values
             #print 'sum(old_values): ',sum(old_values)
-            new_values = [line[2]['bom_p'] for line in vals['bom_line_ids'] if line[2] and 'bom_p' in line[2]]
+            #new_values = [line[2]['bom_p'] for line in vals['bom_line_ids'] if line[2] and 'bom_p' in line[2]]
+            new_values = [line[2]['bom_p'] for line in vals.get('bom_line_ids',[]) if line[2] and 'bom_p' in line[2]]
             #print 'new_values: ',new_values
             #print 'sum(new_values): ',sum(new_values)
             bom_p_total = sum(new_values) + sum(old_values)
