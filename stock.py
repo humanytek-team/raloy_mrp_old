@@ -156,12 +156,13 @@ class StockMove(models.Model):
             new_product_uom_qty = 0
             if rec.raw_material_production_id:
                 if rec.real_p >= 0:
-                    print '11111'
+                    #print '11111'
                     product_qty = rec.raw_material_production_id.product_qty
-                    print 'product_qty: ',product_qty
-                    print 'rec.real_p: ',rec.real_p
-                    new_product_uom_qty = ((rec.real_p * product_qty) / 100)
-                print 'new_product_uom_qty: ',new_product_uom_qty
+                    #print 'product_qty: ',product_qty
+                    #print 'rec.real_p: ',rec.real_p
+                    #new_product_uom_qty = ((rec.real_p * product_qty) / 100)
+                    new_product_uom_qty = (((rec.real_p*100) * product_qty) / 100)
+                #print 'new_product_uom_qty: ',new_product_uom_qty
                 rec.product_uom_qty = new_product_uom_qty
         return
 
