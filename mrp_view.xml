@@ -42,8 +42,15 @@
                     </div> 
                 </field>
 
+                <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='product_uom_qty']" position="replace">
+                    <field name="product_uom_qty" readonly="1" attrs="{'required': [('product_id', '!=', False)]}" string="To Consume" sum='total'/>
+                    <field name="product_uom_qty_original" readonly="1" />
+                </xpath>
+
                 <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='quantity_done']" position="after">
                     <!-- <field name="bom_p" readonly="1" sum='% Total LDM'/> -->
+                    
+
                     <field name="obligatorio" readonly="1" />
                     <field name="formula_p" readonly="1" />
                     <field name="real_p" />
@@ -54,8 +61,8 @@
                 </xpath>
 
                 <!-- ELEMENTO DE MODULO STOCK MOVE ADD, SE ELIMINA BOTON CANCELAR -->
-                <button name="action_consume_cancel" position="replace">
-                </button>
+                <!-- <button name="action_consume_cancel" position="replace">
+                </button> -->
 
 
             </field>

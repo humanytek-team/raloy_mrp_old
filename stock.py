@@ -160,8 +160,8 @@ class StockMove(models.Model):
                     product_qty = rec.raw_material_production_id.product_qty
                     #print 'product_qty: ',product_qty
                     #print 'rec.real_p: ',rec.real_p
-                    #new_product_uom_qty = ((rec.real_p * product_qty) / 100)
-                    new_product_uom_qty = (((rec.real_p*100) * product_qty) / 100)
+                    new_product_uom_qty = ((rec.real_p * product_qty) / 100)
+                    #new_product_uom_qty = (((rec.real_p*100) * product_qty) / 100)
                 #print 'new_product_uom_qty: ',new_product_uom_qty
                 rec.product_uom_qty = new_product_uom_qty
         return
@@ -173,6 +173,9 @@ class StockMove(models.Model):
         pass
 
     quantity_done_store = fields.Float('Quantity', digits=dp.get_precision('Product Unit of Measure'))
+
+    product_uom_qty_original = fields.Float('A consumir (original)', digits=dp.get_precision('Product Unit of Measure'))
+    
 
     #unit_factor = fields.Float('Unit Factor',compute='_compute_unit_factor',digits=dp.get_precision('Product Unit of Measure'))
     unit_factor = fields.Float('Unit Factor',digits=dp.get_precision('Product Unit of Measure'))

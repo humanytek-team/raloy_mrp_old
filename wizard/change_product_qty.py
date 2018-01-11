@@ -20,6 +20,12 @@ class ChangeProductionQty(models.TransientModel):
             production = wizard.mo_id
             for move in production.move_raw_ids:
             	move.compute_uom_qty()
+
+                #SE REVISAN LOS LOTES EXISTENTES DE CADA MOVIMIENTO
+                for lot in move.active_move_lot_ids:
+                    print lot.lot_id.name
+                    print lot.quantity_done
+                    print "-----------------"
         return res
 
 

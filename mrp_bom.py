@@ -42,8 +42,8 @@ class MrpBomLine(models.Model):
                 #print '1111'
                 if rec.bom_p:
                     #print '2222'
-                    #rec.product_qty = (rec.bom_p * self.bom_id.product_qty)/100
-                    rec.product_qty = ((rec.bom_p*100) * self.bom_id.product_qty)/100
+                    rec.product_qty = (rec.bom_p * self.bom_id.product_qty)/100
+                    #rec.product_qty = ((rec.bom_p*100) * self.bom_id.product_qty)/100
         return
 
 
@@ -158,13 +158,13 @@ class MrpBom(models.Model):
             #print 'sum(new_values): ',sum(new_values)
             bom_p_total = sum(new_values) + sum(old_values)
 
-            #differencia = bom_p_total - 100
-            differencia = bom_p_total - 1
-            #if bom_p_total > 100:
-            if bom_p_total > 1:
+            differencia = bom_p_total - 100
+            #differencia = bom_p_total - 1
+            if bom_p_total > 100:
+            #if bom_p_total > 1:
             #if abs(differencia) > _ALLOWED_DIFFERENCE:
-                #raise ValidationError(_('El % de lista no puede ser mayor al 100%'))
-                raise ValidationError(_('El % de lista no puede ser mayor 1'))
+                raise ValidationError(_('El % de lista no puede ser mayor al 100%'))
+                #raise ValidationError(_('El % de lista no puede ser mayor 1'))
 
 
         self.message_post(body=msg,type="comment")

@@ -237,6 +237,12 @@ class MrpProduction(models.Model):
         for production in self:
             if production.move_raw_ids:
                 for move in production.move_raw_ids:
+
+                    #NEW###############
+                    #CONTENDRA VALOR ORIGINAL A CONSUMIR (INFORMATIVO)
+                    move.product_uom_qty_original = move.product_uom_qty 
+                    ####################
+
                     print 'move.product_id.name: ',move.product_id.name
                     if move.bom_line_id:
                         print 'move.bom_line_id.bom_p: ',move.bom_line_id.bom_p
@@ -268,48 +274,78 @@ class MrpProduction(models.Model):
     #     return True
 
 
-    def check_move_line(self,move):
-        if move.obligatorio:
+    # def check_move_line(self,move):
+    #     print 'check_move_line'
+    #     if move.obligatorio:
 
-            if move.bom_line_id and not move.new_bom_line and move.raw_material_production_id:
-                bom_product_qty = move.bom_line_id.bom_id.product_qty
-                bom_line_product_qty = move.bom_line_id.product_qty
-                production_qty = move.raw_material_production_id.product_qty
-                move_product_qty = move.product_uom_qty
+    #         if move.bom_line_id and not move.new_bom_line and move.raw_material_production_id:
+    #             bom_product_qty = move.bom_line_id.bom_id.product_qty
+    #             bom_line_product_qty = move.bom_line_id.product_qty
+    #             production_qty = move.raw_material_production_id.product_qty
+    #             move_product_qty = move.product_uom_qty
 
-                bom_qty = 0
-                move_qty_percentage = 0
+    #             bom_qty = 0
+    #             move_qty_percentage = 0
 
-                if production_qty > 0: bom_qty = (bom_line_product_qty / bom_product_qty) * production_qty
-                if bom_qty > 0: move_qty_percentage = (move_product_qty * 100 ) / bom_qty
+    #             if production_qty > 0:
+    #                 bom_qty = (bom_line_product_qty / bom_product_qty) * production_qty
+    #             if bom_qty > 0: 
+    #                 move_qty_percentage = (move_product_qty * 100 ) / bom_qty
 
-                differencia = move_qty_percentage - move.formula_p
-                if abs(differencia) > _ALLOWED_DIFFERENCE:
-                    #if move_qty_percentage < move.formula_p:
-                    if differencia < 0:
-                        min_qty = ((move.formula_p * bom_qty) / 100) or 0.0
-                        move.product_uom_qty = min_qty
+    #             print '-----------'
+    #             print 'move.product_id.name: ',move.product_id.name
+    #             print 'move_qty_percentage: ',move_qty_percentage
+    #             print 'move.formula_p: ',move.formula_p
+    #             differencia = move_qty_percentage - move.formula_p
+    #             if abs(differencia) > _ALLOWED_DIFFERENCE:
+    #                 #if move_qty_percentage < move.formula_p:
+    #                 if differencia < 0:
+    #                     min_qty = ((move.formula_p * bom_qty) / 100) or 0.0
+    #                     move.product_uom_qty = min_qty
 
 
-                        min_qty = str('{0:f}'.format(min_qty))
-                        #print 'min_qty: ',min_qty
+    #                     min_qty = str('{0:f}'.format(min_qty))
+    #                     #print 'min_qty: ',min_qty
                         
-                        raise ValidationError(_('La cantidad minima permitida para '+move.product_id.name+\
-                            ' es '+str(min_qty)))
-                    #elif move_qty_percentage > 100:
-                    # elif differencia > 0:
-                    #     max_qty = bom_qty
-                    #     move.product_uom_qty = max_qty
-                    #     raise ValidationError(_('La cantidad maxima permitida para '+move.product_id.name+\
-                    #         ' es '+str(max_qty)))
-        return
+    #                     raise ValidationError(_('La cantidad minima permitida para '+move.product_id.name+\
+    #                         ' es '+str(min_qty)))
+    #                 #elif move_qty_percentage > 100:
+    #                 # elif differencia > 0:
+    #                 #     max_qty = bom_qty
+    #                 #     move.product_uom_qty = max_qty
+    #                 #     raise ValidationError(_('La cantidad maxima permitida para '+move.product_id.name+\
+    #                 #         ' es '+str(max_qty)))
+    #     return
 
+
+    def check_move_line(self,move):
+        print 'check_move_line'
+        if move.obligatorio:
+            if move.bom_line_id and not move.new_bom_line and move.raw_material_production_id:
+                production_qty = move.raw_material_production_id.product_qty #100%
+                product_uom_qty = move.product_uom_qty #?
+                min_qty = (move.formula_p * production_qty) / 100
+                line_percent = 0
+
+                print 'production_qty: ',production_qty
+                print 'move.product_id.name: ',move.product_id.name
+                print 'product_uom_qty: ',product_uom_qty
+                print '-------------------'
+
+                if production_qty > 0:
+                    line_percent = (product_uom_qty * 100) / production_qty
+
+                if line_percent < move.formula_p:
+                    raise ValidationError(_('La cantidad minima permitida para '+move.product_id.name+\
+                        ' es '+str(min_qty)))
+        return
 
     @api.multi
     def check_percentage(self):
         """
         REVISA QUE SE CUMPLA LA CONDICION DE 100% DE LISTA DE MATERIALES
         """
+        print 'check_percentage'
         for production in self:
             if production.product_id.categ_id and production.product_id.categ_id.mrp_bom_modification:
                 #SE OBTIENE EL 100% DE LA LISTA DE MATERIALES ORIGINAL (SUMA DEL TOTAL DE CANTIDADES)
