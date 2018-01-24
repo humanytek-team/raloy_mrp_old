@@ -44,7 +44,7 @@
 
                 <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='product_uom_qty']" position="replace">
                     <field name="product_uom_qty" readonly="1" attrs="{'required': [('product_id', '!=', False)]}" string="To Consume" sum='total'/>
-                    <field name="product_uom_qty_original" readonly="1" />
+                    <!-- <field name="product_uom_qty_original" readonly="1" /> -->
                 </xpath>
 
                 <xpath expr="//notebook/page/field[@name='move_raw_ids']/tree/field[@name='quantity_done']" position="after">
@@ -56,17 +56,23 @@
                     <field name="real_p" />
                     <field name="densidad" />
                     <field name="kilos"/>
-                    <field name="unit_factor" invisible="0"/>
+                    <field name="unit_factor" invisible="1"/>
                     <field name="porcentaje" sum='Porcentaje total'/>
                 </xpath>
 
+                <!-- <xpath expr="//notebook/page/field[@name='move_raw_ids']" position="attributes">
+                    <attribute name="domain">[('state','!=','cancel')]</attribute>
+                </xpath> -->
+
                 <!-- ELEMENTO DE MODULO STOCK MOVE ADD, SE ELIMINA BOTON CANCELAR -->
-                <!-- <button name="action_consume_cancel" position="replace">
-                </button> -->
+                <button name="action_consume_cancel" position="replace">
+                    <button name="action_consume_cancel_window" string="Cancel Move" type="object" icon="fa-times-circle" states="draft,waiting,confirmed,assigned" class="oe_edit_only"/>
+                </button>
 
 
             </field>
         </record>
+
 
     </data>
 </openerp>

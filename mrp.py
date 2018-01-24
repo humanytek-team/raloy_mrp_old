@@ -228,7 +228,33 @@ _ALLOWED_DIFFERENCE = .0000001 #MARGEN PERMITIDO DE DIFERENCIA ENTRE 2 NUMEROS
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
+
+    # @api.multi
+    # def button_mark_done(self):
+    #     print 'button_mark_done'
+    #     self.ensure_one()
+    #     for wo in self.workorder_ids:
+    #         if wo.time_ids.filtered(lambda x: (not x.date_end) and (x.loss_type in ('productive', 'performance'))):
+    #             raise UserError(_('Work order %s is still running') % wo.name)
+    #     print '111111'
+    #     self.post_inventory()
+    #     print '22222'
+    #     moves_to_cancel = (self.move_raw_ids | self.move_finished_ids).filtered(lambda x: x.state not in ('done', 'cancel'))
+    #     moves_to_cancel.action_cancel()
+    #     print '33333'
+    #     self.write({'state': 'done', 'date_finished': fields.Datetime.now()})
+    #     print '4444'
+    #     self.env["procurement.order"].search([('production_id', 'in', self.ids)]).check()
+    #     print '5555'
+    #     return self.write({'state': 'done'})
+
+
+
     #bom_mod = fields.Boolean('bom_mod',related='product_id.categ_id.mrp_bom_modification')
+    move_raw_ids = fields.One2many(
+    'stock.move', 'raw_material_production_id', 'Raw Materials', oldname='move_lines',
+    copy=False, states={'done': [('readonly', True)], 'cancel': [('readonly', True)]}, 
+    domain=[('scrapped', '=', False),('state', '!=', 'cancel')])
 
     @api.multi
     def _generate_moves(self):
@@ -243,9 +269,9 @@ class MrpProduction(models.Model):
                     move.product_uom_qty_original = move.product_uom_qty 
                     ####################
 
-                    print 'move.product_id.name: ',move.product_id.name
+                    #print 'move.product_id.name: ',move.product_id.name
                     if move.bom_line_id:
-                        print 'move.bom_line_id.bom_p: ',move.bom_line_id.bom_p
+                        #print 'move.bom_line_id.bom_p: ',move.bom_line_id.bom_p
                         move.real_p = move.bom_line_id.bom_p
 
         return res
@@ -317,6 +343,20 @@ class MrpProduction(models.Model):
     #                 #         ' es '+str(max_qty)))
     #     return
 
+    def get_min_qty(self,move,production_qty):
+        """
+        OBTIENE EL % CORRESPONDIENTE A LA CANTIDAD ESTABLECIDA EN LA LISTA
+        DE MATERIAL
+        """
+        print 'get_bom_line_percent'
+        min_qty = 0
+        bom_qty = move.bom_line_id.product_qty
+        formula_p = move.formula_p
+        qty = move.product_uom_qty
+        min_qty = ((bom_qty * formula_p)/100)*production_qty
+        print 'min_qty: ',min_qty
+        return min_qty
+
 
     def check_move_line(self,move):
         print 'check_move_line'
@@ -324,20 +364,26 @@ class MrpProduction(models.Model):
             if move.bom_line_id and not move.new_bom_line and move.raw_material_production_id:
                 production_qty = move.raw_material_production_id.product_qty #100%
                 product_uom_qty = move.product_uom_qty #?
-                min_qty = (move.formula_p * production_qty) / 100
+                #min_qty = (move.formula_p * production_qty) / 100
                 line_percent = 0
+
+                min_qty = self.get_min_qty(move,production_qty)
 
                 print 'production_qty: ',production_qty
                 print 'move.product_id.name: ',move.product_id.name
                 print 'product_uom_qty: ',product_uom_qty
                 print '-------------------'
 
-                if production_qty > 0:
-                    line_percent = (product_uom_qty * 100) / production_qty
-
-                if line_percent < move.formula_p:
+                if product_uom_qty < min_qty:
                     raise ValidationError(_('La cantidad minima permitida para '+move.product_id.name+\
                         ' es '+str(min_qty)))
+
+                # if production_qty > 0:
+                #     line_percent = (product_uom_qty * 100) / production_qty
+
+                # if line_percent < move.formula_p:
+                #     raise ValidationError(_('La cantidad minima permitida para '+move.product_id.name+\
+                #         ' es '+str(min_qty)))
         return
 
     @api.multi

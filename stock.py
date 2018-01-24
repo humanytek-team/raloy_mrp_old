@@ -200,3 +200,70 @@ class StockMove(models.Model):
     # bom_p = fields.Float('% de Lista',compute='_compute_bom_percent',\
     #     digits=dp.get_precision('Product Unit of Measure'), store=True)
 
+    @api.multi
+    def action_consume_cancel_window(self):
+        ctx = dict(self.env.context)
+        self.ensure_one()
+        view = self.env.ref('raloy_mrp.view_stock_move_cancel')
+        #serial = (self.has_tracking == 'serial')
+        #only_create = False  # Check picking type in theory
+        #show_reserved = any([x for x in self.move_lot_ids if x.quantity > 0.0])
+        # ctx.update({
+        #     'serial': serial,
+        #     'only_create': only_create,
+        #     'create_lots': True,
+        #     'state_done': self.is_done,
+        #     'show_reserved': show_reserved,
+        # })
+        # if ctx.get('w_production'):
+        #     action = self.env.ref('mrp.act_mrp_product_produce').read()[0]
+        #     action['context'] = ctx
+        #     return action
+        result = {
+            'name': _('Cancelar'),
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'stock.move',
+            'views': [(view.id, 'form')],
+            'view_id': view.id,
+            'target': 'new',
+            'res_id': self.id,
+            'context': ctx,
+        }
+        return result
+
+
+    # @api.multi
+    # def split_move_lot(self):
+    #     ctx = dict(self.env.context)
+    #     self.ensure_one()
+    #     view = self.env.ref('mrp.view_stock_move_lots')
+    #     serial = (self.has_tracking == 'serial')
+    #     only_create = False  # Check picking type in theory
+    #     show_reserved = any([x for x in self.move_lot_ids if x.quantity > 0.0])
+    #     ctx.update({
+    #         'serial': serial,
+    #         'only_create': only_create,
+    #         'create_lots': True,
+    #         'state_done': self.is_done,
+    #         'show_reserved': show_reserved,
+    #     })
+    #     if ctx.get('w_production'):
+    #         action = self.env.ref('mrp.act_mrp_product_produce').read()[0]
+    #         action['context'] = ctx
+    #         return action
+    #     result = {
+    #         'name': _('Register Lots'),
+    #         'type': 'ir.actions.act_window',
+    #         'view_type': 'form',
+    #         'view_mode': 'form',
+    #         'res_model': 'stock.move',
+    #         'views': [(view.id, 'form')],
+    #         'view_id': view.id,
+    #         'target': 'new',
+    #         'res_id': self.id,
+    #         'context': ctx,
+    #     }
+    #     return result
+
