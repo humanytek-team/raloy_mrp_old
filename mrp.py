@@ -270,8 +270,8 @@ class MrpProduction(models.Model):
                     ####################
 
                     #print 'move.product_id.name: ',move.product_id.name
-                    if move.bom_line_id:
-                        #print 'move.bom_line_id.bom_p: ',move.bom_line_id.bom_p
+                    if move.bom_line_id and production.product_id.categ_id.mrp_bom_modification:
+                        print 'move.bom_line_id.bom_p: ',move.bom_line_id.bom_p
                         move.real_p = move.bom_line_id.bom_p
 
         return res
@@ -369,10 +369,10 @@ class MrpProduction(models.Model):
 
                 min_qty = self.get_min_qty(move,production_qty)
 
-                print 'production_qty: ',production_qty
-                print 'move.product_id.name: ',move.product_id.name
-                print 'product_uom_qty: ',product_uom_qty
-                print '-------------------'
+                #print 'production_qty: ',production_qty
+                #print 'move.product_id.name: ',move.product_id.name
+                #print 'product_uom_qty: ',product_uom_qty
+                #print '-------------------'
 
                 if product_uom_qty < min_qty:
                     raise ValidationError(_('La cantidad minima permitida para '+move.product_id.name+\

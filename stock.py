@@ -151,7 +151,7 @@ class StockMove(models.Model):
     #@api.depends('real_p')
     def compute_uom_qty(self):
         #print 'self: ',self
-        #print 'compute_uom_qty'
+        print 'compute_uom_qty'
         for rec in self:
             new_product_uom_qty = 0
             if rec.raw_material_production_id:
