@@ -37,7 +37,7 @@
                     <div class="o_row">
                         <field name="routing_id" groups="mrp.group_mrp_routings"/>
                         <button type="action"
-                        name="%(raloy_mrp.action_change_route)d"
+                        name="%(raloy_mrp_old.action_change_route)d"
                         string="Actualizar" states="confirmed,planned,progress" class="oe_link" attrs="{'invisible': [('state','=','done')]}"/>
                     </div> 
                 </field>
