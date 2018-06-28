@@ -204,7 +204,7 @@ class StockMove(models.Model):
     def action_consume_cancel_window(self):
         ctx = dict(self.env.context)
         self.ensure_one()
-        view = self.env.ref('raloy_mrp.view_stock_move_cancel')
+        view = self.env.ref('raloy_mrp_old.view_stock_move_cancel')
         #serial = (self.has_tracking == 'serial')
         #only_create = False  # Check picking type in theory
         #show_reserved = any([x for x in self.move_lot_ids if x.quantity > 0.0])
